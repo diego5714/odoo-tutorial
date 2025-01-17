@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<odoo>
+    <data>
+
+<!-- Vistas  ################################################################################################## -->
+        <!-- Definimos una vista de formulario para crear tipos de propiedad -->
+        <record id="estate_property_type_form_view" model="ir.ui.view">
+            <field name="name">estate.property.type.form</field>
+            <field name="model">estate.property.type</field>
+            <field name="arch" type="xml">
+                <form>
+                    <sheet>
+                        <!-- un sheet es un canvas blanco vacío, en él vamos a definir grupos de elementos -->
+                        <!-- que funcionan como los divs de html -->
+                        <group>
+                            <field name="name"/>
+                        </group>
+
+                    </sheet>
+                </form>
+            </field>
+        </record>
+
+         <!-- Definimos una vista de arbol/tree -->
+        <record id="estate_property_type_tree_view" model="ir.ui.view">
+            <field name="name">estate.property.type.tree</field>
+            <field name="model">estate.property.type</field>
+            <field name="arch" type="xml">
+                <tree>
+                    <field name="name"/>
+                </tree>
+            </field>
+        </record>
+
+
+<!-- Acciones  ################################################################################################## -->
+        <!-- Lo siguiente crea una entrada o record en el modelo ir.actions.act_window -->
+        <!-- Y crea una acción que carga una vista determinada (arbol en este caso) -->
+        <!-- Esta acción deberá ser llamada luego desde el elemento correspondiente en el menú -->
+
+        <record id="action_property_type" model="ir.actions.act_window">
+            <!-- Asignamos el nombre de la entrada como Property type -->
+            <field name="name">Property Type</field>
+
+            <!-- Que hace referencia al modelo estate.property.type -->
+            <field name="res_model">estate.property.type</field>
+
+            <!-- y va a mostrar vistas de tipo tree y form -->
+            <field name="view_mode">tree,form</field>
+
+            <!-- aqui referenciamos la vista custom de tree que hicimos, que se cargara inicialmente -->
+            <field name="view_id" ref="estate_property_type_tree_view"/>
+
+            <!-- También asignamos la ayuda que aparece al centro -->
+            <field name="help" type="html">
+                <p class="o_view_nocontent_smiling_face">
+                    Create a property type
+                </p>
+            </field>
+        </record>
+
+    </data>
+</odoo>

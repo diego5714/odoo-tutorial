@@ -1,0 +1,23 @@
+<odoo>
+    <data>
+        <!-- Aqui definimos una acción de reporte, que nos permitirá exportar un record de propiedad a pdf -->
+        <record id="property_report_action" model="ir.actions.report">
+            <field name="name">Property Report Action</field>
+            <field name="model">estate.property</field>
+            <field name="report_type">qweb-pdf</field>
+            <field name="report_name">real_estate_tutorial.report_estate_property</field>
+            <field name="report_file">real_estate_tutorial.report_estate_property</field>
+            <field name="print_report_name">(object._get_report_base_filename())</field>
+
+            <field name="attachment">((object.name)+'.pdf'</field>
+
+            <!-- Lo siguiente indica que lo bindeamos a la vista de las propiedades, desde la que se podrá -->
+            <!-- "imprimir" el reporte -->
+            <field name="binding_model_id" ref="real_estate_tutorial.model_estate_property"/>
+            <field name="binding_type">report</field>
+
+            <!-- Sólo será visible para managers -->
+            <field name="groups_id" eval="[(4, ref('real_estate_tutorial.group_property_manager'))]"/>
+        </record>
+    </data>
+</odoo>

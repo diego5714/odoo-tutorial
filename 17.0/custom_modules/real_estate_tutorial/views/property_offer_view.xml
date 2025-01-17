@@ -1,0 +1,119 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<odoo>
+    <data>
+<!-- Acciones secundarias ##################################################################################### -->
+
+        <!-- acción para cargar una Server Action, que permite operar sobre múltiples records a la vez -->
+        <!-- desde el menú (Seleccionándolos). En este caso lo que hace es incrementar el deadline asociado a las -->
+        <!-- ofertas de cada record, mediante la ejecución de código Python. (Una de las utilidades de las server actions -->
+        <!-- es cargar código de python, pero también pueden crear/modificar records, enviar hooks/notificaciones u otros) -->
+        <record id="action_extend_offer_deadline" model="ir.actions.server">
+            <field name="name">Extend Deadline</field>
+            <field name="model_id" ref="real_estate_tutorial.model_estate_property_offer"/>
+            <field name="state">code</field>
+
+            <!-- Estos fields nos permiten asociar esta accion a las vistas del modelo definido en binding_model-->
+            <field name="binding_model_id" ref="real_estate_tutorial.model_estate_property_offer"/>
+            <field name="binding_view_types">list,form</field>
+
+            <!-- extend_offer_deadline es un metodo de python que definimos en property_offer.py -->
+            <field name="code">
+                action = model.extend_offer_deadline()
+            </field>
+        </record>
+
+        <!-- Acción para cargar una scheduled action o cronjob, que correrá de manera periódica y definida -->
+        <!-- Su función es extender el deadline de los records de offer en un día, cada día -->
+        <record id="ir_cron_extend_offer_deadline" model="ir.cron">
+            <field name="name">Offers: Extend deadline everyday</field>
+            <field name="model_id" ref="real_estate_tutorial.model_estate_property_offer"/>
+            <field name="state">code</field>
+            <field name="code">
+                model.extend_offer_deadline_all()
+            </field>
+            <field name="interval_number">1</field>
+            <field name="interval_type">days</field>
+            <field name="numbercall">-1</field>
+
+            <!-- Controla si este cronjob está activo, o se debe correr manualmente -->
+            <field name="active" eval="False"/>
+
+            <!-- Ejecuta el cronjob si por algún motivo no se pudo ejecutar cuando correspondía -->
+            <field name="doall" eval="False"/>
+        </record>
+<!-- Vistas  ################################################################################################## -->
+        <!-- Definimos una vista de formulario para visualizar ofertas -->
+        <record id="estate_property_offer_form_view" model="ir.ui.view">
+            <field name="name">estate.property.offer.form</field>
+            <field name="model">estate.property.offer</field>
+            <field name="arch" type="xml">
+                <form>
+                    <sheet>
+                        <!-- un sheet es un canvas blanco vacío, en él vamos a definir grupos de elementos -->
+                        <!-- que funcionan como los divs de html -->
+                        <group>
+                            <group>
+                                <field name="price" widget="monetary"/>
+                                <field name="status"/>
+                                <field name="partner_id"/>
+                                <field name="property_id"/>
+                                <!-- importante que currency_id esté disponible en la vista -->
+                                <field name="currency_id" invisible="1"/>
+                            </group>
+                            <group>
+                                <field name="creation_date"/>
+                                <field name="validity"/>
+                                <field name="deadline"/>
+                            </group>
+                        </group>
+
+                    </sheet>
+                </form>
+            </field>
+        </record>
+
+         <!-- Definimos una vista de arbol/tree -->
+        <record id="estate_property_offer_tree_view" model="ir.ui.view">
+            <field name="name">estate.property.offer.tree</field>
+            <field name="model">estate.property.offer</field>
+            <field name="arch" type="xml">
+                <tree>
+                    <field name="price"/>
+                    <field name="status"/>
+                    <field name="partner_id"/>
+                    <field name="property_id"/>
+                    <field name="creation_date"/>
+                    <field name="validity"/>
+                    <field name="deadline"/>
+                </tree>
+            </field>
+        </record>
+
+<!-- Acciones  ################################################################################################## -->
+        <!-- Lo siguiente crea una entrada o record en el modelo ir.actions.act_window -->
+        <!-- Y crea una acción que carga una vista determinada (arbol en este caso) -->
+        <!-- Esta acción deberá ser llamada luego desde el elemento correspondiente en el menú -->
+
+        <record id="action_property_offer" model="ir.actions.act_window">
+            <!-- Asignamos el nombre de la entrada como Property type -->
+            <field name="name">Property Offers</field>
+
+            <!-- Que hace referencia al modelo estate.property.type -->
+            <field name="res_model">estate.property.offer</field>
+
+            <!-- y va a mostrar vistas de tipo tree y form -->
+            <field name="view_mode">tree,form</field>
+
+            <!-- aqui referenciamos la vista custom de tree que hicimos, que se cargara inicialmente -->
+            <field name="view_id" ref="estate_property_offer_tree_view"/>
+
+            <!-- También asignamos la ayuda que aparece al centro -->
+            <field name="help" type="html">
+                <p class="o_view_nocontent_smiling_face">
+                    Create a property offer
+                </p>
+            </field>
+        </record>
+
+    </data>
+</odoo>

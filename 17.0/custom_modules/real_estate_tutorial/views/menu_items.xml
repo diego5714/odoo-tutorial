@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8" ?>
+
+<!-- Esta jerarquía de elementos define los botones a los que se tendrá acceso desde la interfaz -->
+<!-- Un botón que es hijo de otro solo aparecerá al poner el cursor sobre el padre -->
+<!-- La raíz es el botón con ícono de la lista de apps -->
+<!-- Si queremos que al pulsar el botón pase algo, debemos asignarle una acción creada en los xml de las vistas -->
+
+<odoo>
+    <menuitem name="Real estate properties" id="menu_root_property_tutorial"  web_icon="real_estate_tutorial,static/description/icon.png">
+        <menuitem id="menu_property_tutorial_ads" name="Ads">
+            <menuitem id="menu_property_tutorial" name="Property" action="real_estate_tutorial.action_property"/>
+            <menuitem id="menu_property_offers" name="Offers" action="real_estate_tutorial.action_property_offer"/>
+        </menuitem>
+
+        <menuitem id="menu_property_tutorial_settings" name="Settings">
+            <menuitem id="menu_property_type" name="Property Types" action="real_estate_tutorial.action_property_type"/>
+            <!-- la etiqueta groups permite mostrar este botón sólo a usuarios pertenecientes a un grupo -->
+            <menuitem id="menu_property_tags" name="Property Tags" action="real_estate_tutorial.action_property_tags" groups="real_estate_tutorial.group_property_manager"/>
+        </menuitem>
+
+        <menuitem id="menu_property_tutorial_actions" name="Testing Client actions">
+            <menuitem id="menu_property_custom_action" name="My Custom Action" action="action_my_custom_client_action"/>
+        </menuitem>
+
+    </menuitem>
+</odoo>
