@@ -33,7 +33,7 @@ class PropertyOffer(models.Model):
 
     ###################################################################################################
 
-    validity = fields.Integer(string = "Validity (days)")
+    validity = fields.Integer(string = "Validity (days)", default=7)
 
     # El decorador api.model se usa cuando el self sobre el que se itera es un record de algún modelo,
     # y no nos importa su contenido, solo el modelo.
@@ -48,7 +48,36 @@ class PropertyOffer(models.Model):
 
     creation_date = fields.Date(string = "Creation Date", default = _set_create_date)
 
-    ####################################################################################################
+    ####################################################################################################################
+    def validate_accepted_offer(self):
+        offer_ids = self.env['estate.property.offer'].search([
+            ('property_id', '=', self.property_id.id),
+            ('status', '=', 'accepted')
+        ])
+        if offer_ids:
+            raise ValidationError("You have already accepted an offer for this property")
+
+    def action_accept_offer(self):
+        if self.property_id:
+            self.validate_accepted_offer()
+
+            # self.property_id.selling_price = self.price
+            # o también
+            self.property_id.write({
+                'selling_price': self.price,
+                'state': 'accepted'
+            })
+        self.status = 'accepted'
+
+    def action_decline_offer(self):
+        self.status = 'rejected'
+        if all(self.property_id.offer_ids.mapped('status')):
+            self.property_id.write({
+                'selling_price': 0,
+                'state': 'received'
+            })
+
+    ####################################################################################################################
 
     @api.depends('validity', 'creation_date')
     def _compute_deadline(self):
@@ -103,6 +132,7 @@ class PropertyOffer(models.Model):
         for record in self:
             if record.deadline < fields.Date.today():
                 raise ValidationError("The deadline cannot be set in the past")
+
 
     """     
     # Otra manera más simple, pero un poco menos flexible de imponer restricciones es usando constraints de sql.

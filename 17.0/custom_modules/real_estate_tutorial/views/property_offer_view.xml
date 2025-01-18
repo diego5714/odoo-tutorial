@@ -61,7 +61,7 @@
                                 <field name="currency_id" invisible="1"/>
                             </group>
                             <group>
-                                <field name="creation_date"/>
+                                <field name="creation_date" readonly="1"/>
                                 <field name="validity"/>
                                 <field name="deadline"/>
                             </group>
@@ -77,7 +77,7 @@
             <field name="name">estate.property.offer.tree</field>
             <field name="model">estate.property.offer</field>
             <field name="arch" type="xml">
-                <tree>
+                <tree decoration-success="status == 'accepted'" decoration-danger="status == 'rejected'">
                     <field name="price"/>
                     <field name="status"/>
                     <field name="partner_id"/>
@@ -85,6 +85,9 @@
                     <field name="creation_date"/>
                     <field name="validity"/>
                     <field name="deadline"/>
+
+                    <!-- importante que currency_id esté disponible en la vista -->
+                    <field name="currency_id" optional="hide"/>
                 </tree>
             </field>
         </record>

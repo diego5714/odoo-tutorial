@@ -65,8 +65,10 @@ class Property(models.Model):
 
     # El atributo tracking permite que el mixing de mail.thread lleve la cuenta de cambios, a través del chatter
     expected_price = fields.Monetary(string = "Expected Price", tracking=True)
-    best_offer = fields.Monetary(string="Best Offer")
-    selling_price = fields.Monetary(string = "Selling Price")
+
+    best_offer = fields.Monetary(string="Best Offer", compute='_compute_best_price')
+    selling_price = fields.Monetary(string = "Selling Price", readonly=True)
+
     currency_id = fields.Many2one("res.currency", string="Currency",
                                   default=lambda self: self.env.user.company_id.currency_id)
 
@@ -122,7 +124,17 @@ class Property(models.Model):
 
     offer_count = fields.Integer(string = "Offer Count", compute = _compute_offer_count)
 
-    #####################################################################################
+    ####################################################################################################################
+    @api.depends('offer_ids')
+    def _compute_best_price(self):
+        for record in self:
+            if record.offer_ids:
+                record.best_offer = max(record.offer_ids.mapped('price'))
+            else:
+                record.best_offer = 0
+
+    ####################################################################################################################
+    ####################################################################################################################
     # Ejemplo de como se puede cargar la vista de ofertas asociadas con type="object" en el xml
 
     def action_property_view_offers(self):
@@ -211,4 +223,5 @@ class Property(models.Model):
         ]
 
     ##############################################################################################
+
 

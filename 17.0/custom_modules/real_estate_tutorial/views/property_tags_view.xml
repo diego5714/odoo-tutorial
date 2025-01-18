@@ -13,6 +13,7 @@
                         <!-- que funcionan como los divs de html -->
                         <group>
                             <field name="name"/>
+                            <field name="color" invisible="1"/>
                         </group>
 
                     </sheet>

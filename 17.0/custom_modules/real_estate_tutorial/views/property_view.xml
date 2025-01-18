@@ -79,7 +79,7 @@
                             <!-- </button> -->
 
                             <!-- Para lo segundo -->
-                            <button class="oe_stat_button" name="action_property_view_offers" type="object">
+                            <button class="oe_stat_button" name="action_property_view_offers" type="object" icon="fa-handshake-o">
                                 <field name="offer_count" string="Offers" widget="statinfo"/>
                             </button>
 
@@ -98,19 +98,23 @@
 
                         <!-- Hay un widget para agregar un emoji-picker -->
                         <field name="name" widget="char_emojis" placeholder="Property Name"/>
-                        <field name="tag_ids" widget = "many2many_tags"/>
+
+                        <!-- Permitimos que los tags tengan color -->
+                        <field name="tag_ids" widget = "many2many_tags" options="{'color_field': 'color'}"/>
 
                         <group>
-                            <field name="type_id"/>
-                            <field name="postcode"/>
-                            <field name="date_availability"/>
-                        </group>
-                        <group>
-                            <field name="expected_price" groups="real_estate_tutorial.group_property_manager" widget="monetary"/>
-                            <field name="best_offer" widget="monetary"/>
-                            <field name="selling_price" widget="monetary"/>
-                            <!-- importante que currency_id esté disponible en la vista -->
-                            <field name="currency_id" invisible="1"/>
+                            <group>
+                                <field name="type_id"/>
+                                <field name="postcode"/>
+                                <field name="date_availability"/>
+                            </group>
+                            <group>
+                                <field name="expected_price" groups="real_estate_tutorial.group_property_manager" widget="monetary"/>
+                                <field name="best_offer" widget="monetary"/>
+                                <field name="selling_price" widget="monetary"/>
+                                <!-- importante que currency_id esté disponible en la vista -->
+                                <field name="currency_id" invisible="1"/>
+                            </group>
                         </group>
 
                         <!-- Definimos un notebook, que separa páginas (pages) tras un selector de pestañas -->
@@ -126,25 +130,29 @@
                                     <field name="garage" widget="boolean_toggle"/>
                                     <field name="garden" widget="boolean_toggle"/>
 
-                                    <field name="garden_area"/>
+                                    <!-- Campo oculto si se cumple condición -->
+                                    <field name="garden_area" invisible="garden == False"/>
 
                                     <!-- El sig. widget muestra las selecciones como emblemas -->
-                                    <field name="garden_orientation" widget="selection_badge"/>
+                                    <field name="garden_orientation" invisible="garden == False" widget="selection_badge"/>
                                     <field name="total_area"/>
                                 </group>
                             </page>
                             <page string="Offers">
                                 <field name="offer_ids" nolabel="1">
-                                    <tree editable = "bottom">
+                                    <tree editable = "bottom" decoration-success="status == 'accepted'" decoration-danger="status == 'rejected'">
                                         <field name="price" widget="monetary"/>
 
                                         <field name="partner_id"/>}
-                                        <field name="creation_date"/>
+                                        <field name="creation_date" readonly="1"/>
                                         <field name="validity"/>
 
                                         <!-- Existe un widget para mostrar los dias restantes -->
                                         <field name="deadline" widget="remaining_days"/>
-                                        <field name="status" nolabel = "1"/>
+                                        <field name="status" readonly="1"/>
+
+                                        <button name="action_accept_offer" type="object" icon="fa-check" string="Accept"/>
+                                        <button name="action_decline_offer" type="object" icon="fa-times" string="Decline"/>
 
                                         <!-- importante que currency_id esté disponible en la vista -->
                                         <field name="currency_id" optional="hide"/>
