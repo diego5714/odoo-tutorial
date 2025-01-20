@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<!-- Definimos un template para custom tags, que usaremos en js -->
+<!-- Esta es otra manera de definir un template con QWeb, (usando t-name en vez de id) -->
+<!-- Pero debe estar en este directorio xml dentro de static -->
+<!-- esta directiva t-name solo puede ser usada en el nivel superior de un archivo de template -->
+
+<templates xml:space="preserve">
+    <t t-name="CustomActions">
+        <div>
+            <h3>
+                Custom Actions
+            </h3>
+        </div>
+    </t>
+</templates>

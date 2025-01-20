@@ -1,0 +1,29 @@
+<odoo>
+    <data>
+        <!-- Esta regla da acceso a los usuarios comunes solo a las propiedades de las que son el vendedor. -->
+        <record id="property_rule_for_users" model="ir.rule">
+            <field name="name">Property Rule for users</field>
+            <field name="model_id" ref="real_estate_tutorial.model_estate_property"/>
+            <field name="domain_force">[('sales_id', '=', user.id)]</field>
+            <field name="groups" eval="[Command.link(ref('real_estate_tutorial.group_property_user'))]"/>
+
+            <field name="perm_unlink" eval="True"/>
+            <field name="perm_write" eval="True"/>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_create" eval="False"/>
+        </record>
+
+        <!-- Esta regla da acceso a los administradores a todas las propiedades. -->
+        <record id="property_rule_for_manager" model="ir.rule">
+            <field name="name">Property Rule for manager</field>
+            <field name="model_id" ref="real_estate_tutorial.model_estate_property"/>
+            <field name="domain_force">[(1, '=', 1)]</field>
+            <field name="groups" eval="[Command.link(ref('real_estate_tutorial.group_property_manager'))]"/>
+
+            <field name="perm_unlink" eval="True"/>
+            <field name="perm_write" eval="True"/>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_create" eval="True"/>
+        </record>
+    </data>
+</odoo>

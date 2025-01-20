@@ -1,0 +1,393 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<odoo>
+    <data>
+<!-- Acciones secundarias  ################################################################################# -->
+        <!-- Lo siguiente crea entradas o records en el modelo ir.actions.act_window, lo que permite -->
+        <!-- definir y crear acciones que luego se podrán llamar, para por ejemplo cargar vistas específicas -->
+        <!-- Luego hará falta definir el llamado desde algún elemento del menú o desde otra vista -->
+
+        <!-- Estas son acciones secundarias, llamadas por otras acciones u otras vistas -->
+
+        <!-- La acción principal que carga la vista principal desde un elemento del menú se encuentra -->
+        <!-- al final de este archivo -->
+
+        <!-- acción para abrir ofertas asociadas desde una propiedad específica -->
+        <record id="action_property_view_offers" model="ir.actions.act_window">
+            <field name="name">Property Offers</field>
+            <field name="res_model">estate.property.offer</field>
+            <field name="view_mode">list,form</field>
+
+            <!-- Especificar un dominio nos permite filtrar para que solo salgan las ofertas -->
+            <!-- asociadas a la propiedad visualizada actualmente -->
+            <field name="domain">[('property_id', '=', active_id)]</field>
+
+        </record>
+
+        <!-- acción para cargar una Client Action customizada desde el menú -->
+        <!-- esta acción llamará a un tag customizado que agregaremos en xml, y este último -->
+        <!-- lo conectaremos con un widget en javascript -->
+        <record id="action_my_custom_client_action" model="ir.actions.client">
+            <field name="name">Custom Client Action</field>
+            <field name="tag">custom_client_action</field>
+        </record>
+
+<!-- Vistas  ################################################################################################## -->
+
+        <!-- form  ################################################################## -->
+        <!-- Definimos una vista de formulario para crear propiedades o visualizarlas -->
+        <record id="estate_property_form_view" model="ir.ui.view">
+            <field name="name">estate.property.form</field>
+            <field name="model">estate.property</field>
+            <field name="arch" type="xml">
+                <form>
+                    <!-- En este header vamos a definir botones -->
+                    <!--  si usamos type="object", en name va el nombre del metodo asociado en python -->
+
+                    <!--  si usamos type="action", en name va el nombre de una accion de vista como las -->
+                    <!--  definidas en los otros archivos xml, aunque también es posible hacer esto -->
+                    <!--  usando object si el metodo de python llama a la vista. -->
+
+                    <!-- aparecerán en el header de la vista, arriba -->
+                    <header>
+                        <!-- hay distintas clases de botones que podemos usar -->
+                        <button name="action_sold" type="object" string="Sold" class="btn btn-primary"/>
+                        <button name="action_cancel" type="object" string="Cancel" class="btn btn-danger"/>
+
+                        <!-- este widget nos muestra una barra de progreso -->
+                        <!-- con statusbar_visible="new, received ..." podemos hacer visible solo -->
+                        <!-- algunos estados -->
+                        <field name="state" widget="statusbar" />
+                    </header>
+
+                    <sheet>
+                        <!-- un sheet es un canvas blanco vacío, en él vamos a definir grupos de elementos -->
+                        <!-- que funcionan como los divs de html -->
+
+                        <!-- aquí debajo vamos a definir un botón superior que nos muestra el número de ofertas -->
+                        <!-- que tiene la propiedad, y nos llevará a una vista de árbol que las muestre -->
+                        <!-- se posicionará en una caja arriba a la derecha. name es arbitrario -->
+
+                        <div class="oe_button_box" name="button_box">
+                            <!-- Podemos hacer esto de dos maneras, usando la accion definida en este xml y type="action" -->
+                            <!-- O definir la acción en python y referenciarla usando type="object" -->
+
+                            <!-- Para lo primero como es un botón de tipo acción, debemos definir una acción en name -->
+                            <!-- lo hacemos con esta sintaxis: -->
+
+                            <!-- <button class="oe_stat_button" name="%(real_estate_tutorial.action_property_view_offers)d" type="action"> -->
+                               <!-- <field name="offer_count" string="Offers" widget="statinfo"/> -->
+                            <!-- </button> -->
+
+                            <!-- Para lo segundo -->
+                            <button class="oe_stat_button" name="action_property_view_offers" type="object" icon="fa-handshake-o">
+                                <field name="offer_count" string="Offers" widget="statinfo"/>
+                            </button>
+
+                            <!-- Botón para lanzar una client action de notificación, definida en python -->
+                            <button class="btn btn-primary" name="action_client_action_notify" type="object">
+                                Client Action (Notification)
+                            </button>
+
+                            <!-- Botón para lanzar una url action, definida en python -->
+                            <button class="btn btn-primary" name="action_url_action" type="object">
+                                odoo.com (URL)
+                            </button>
+
+
+                        </div>
+
+                        <!-- Hay un widget para agregar un emoji-picker -->
+                        <field name="name" widget="char_emojis" placeholder="Property Name"/>
+
+                        <!-- Permitimos que los tags tengan color -->
+                        <field name="tag_ids" widget = "many2many_tags" options="{'color_field': 'color'}"/>
+
+                        <group>
+                            <group>
+                                <field name="type_id"/>
+                                <field name="postcode"/>
+                                <field name="date_availability"/>
+                            </group>
+                            <group>
+                                <field name="expected_price" groups="real_estate_tutorial.group_property_manager" widget="monetary"/>
+                                <field name="best_offer" widget="monetary"/>
+                                <field name="selling_price" widget="monetary"/>
+                                <!-- importante que currency_id esté disponible en la vista -->
+                                <field name="currency_id" invisible="1"/>
+                            </group>
+                        </group>
+
+                        <!-- Definimos un notebook, que separa páginas (pages) tras un selector de pestañas -->
+                        <notebook>
+                            <page string="Description">
+                                <group>
+                                    <field name="description" placeholder="Enter a description for this property"/>
+                                    <field name="bedrooms"/>
+                                    <field name="living_area"/>
+                                    <field name="facades"/>
+
+                                    <!-- Existe un widget para los campos booleanos -->
+                                    <field name="garage" widget="boolean_toggle"/>
+                                    <field name="garden" widget="boolean_toggle"/>
+
+                                    <!-- Campo oculto si se cumple condición -->
+                                    <field name="garden_area" invisible="garden == False"/>
+
+                                    <!-- El sig. widget muestra las selecciones como emblemas -->
+                                    <field name="garden_orientation" invisible="garden == False" widget="selection_badge"/>
+                                    <field name="total_area"/>
+                                </group>
+                            </page>
+                            <page string="Offers">
+                                <field name="offer_ids" nolabel="1">
+                                    <list editable = "bottom" decoration-success="status == 'accepted'" decoration-danger="status == 'rejected'">
+                                        <field name="price" widget="monetary"/>
+
+                                        <field name="partner_id"/>}
+                                        <field name="creation_date" readonly="1"/>
+                                        <field name="validity"/>
+
+                                        <!-- Existe un widget para mostrar los dias restantes -->
+                                        <field name="deadline" widget="remaining_days"/>
+                                        <field name="status" readonly="1"/>
+
+                                        <button name="action_accept_offer" type="object" icon="fa-check" string="Accept"/>
+                                        <button name="action_decline_offer" type="object" icon="fa-times" string="Decline"/>
+
+                                        <!-- importante que currency_id esté disponible en la vista -->
+                                        <field name="currency_id" optional="hide"/>
+                                    </list>
+                                </field>
+                            </page>
+                            <page string = "Other Info">
+                                <group>
+                                    <!-- Existe un widget para mostrar usuarios y empleados -->
+                                    <field name="sales_id" widget="many2one_avatar_employee"/>
+                                    <field name="buyer_id" widget="many2one_avatar_user"/>
+
+                                    <!-- Campos relacionados a utm.mixin, para visitor tracking -->
+                                    <!-- Cada vez que esta información sea establecida en las cookies, lo veremos aquí -->
+                                    <field name="campaign_id"/>
+                                    <field name="source_id"/>
+                                    <field name="medium_id"/>
+
+                                    <!-- El widget phone permite enviar sms a los usuarios-->
+                                    <field name="phone" widget="phone"/>
+
+                                    <!-- El widget email permite enviar correos a los usuarios-->
+                                    <field name="email" widget="email"/>
+                                </group>
+                            </page>
+                        </notebook>
+
+                    </sheet>
+
+                    <!-- Cargamos aquí el mixin de mail.thread cargado desde python -->
+                    <!-- para proveer un chatter o hilo de conversación basado en correo -->
+                    <!-- así como también el mixin para llevar cuenta de actividades de usuario -->
+                    <div class="oe_chatter">
+                        <field name="message_follower_ids" widget="mail_followers"/>
+                        <field name="activity_ids" widget="mail_activity"/>
+                        <field name="message_ids" widget="mail_thread"/>
+                    </div>
+
+                </form>
+            </field>
+        </record>
+
+        <!-- list  ########################################### -->
+        <!-- Definimos una vista de arbol/list -->
+        <record id="estate_property_list_view" model="ir.ui.view">
+            <field name="name">estate.property.list</field>
+            <field name="model">estate.property</field>
+            <field name="arch" type="xml">
+                <list>
+                    <field name="name"/>
+                    <field name="tag_ids" widget = "many2many_tags"/>
+                    <field name="type_id"/>
+                    <field name="postcode"/>
+                    <field name="date_availability"/>
+                    <field name="expected_price" widget="monetary"/>
+                    <field name="best_offer" widget="monetary"/>
+                    <field name="selling_price" widget="monetary"/>
+                    <field name="state" widget="badge"/>
+
+                    <!-- importante que currency_id esté disponible en la vista -->
+                    <field name="currency_id" optional="hide"/>
+
+                </list>
+            </field>
+        </record>
+
+        <!-- search  ########################################### -->
+        <!-- Definimos una vista de arbol/list con búsqueda -->
+        <!-- Esto permite que la barra de búsqueda de la vista list pueda buscar sobre más atributos -->
+        <!-- Se carga automáticamente si cargas la vista de list -->
+        <record id="estate_property_search_view" model="ir.ui.view">
+            <field name="name">estate.property.search</field>
+            <field name="model">estate.property</field>
+            <field name="arch" type="xml">
+                <search>
+                    <!-- Aquí hay que definir los atributos sobre los que nos -->
+                    <!-- Gustaría poder buscar -->
+
+                    <field name="name"/>
+                    <field name="tag_ids" widget = "many2many_tags"/>
+                    <field name="type_id"/>
+                    <field name="postcode"/>
+                    <field name="state" widget="badge"/>
+
+                    <!-- También podemos agregar filtros customizados -->
+                    <filter string="New" name="new_state" domain="[('state', '=', 'new')]" />
+                    <filter string="Sold" name="sold_state" domain="[('state', '=', 'sold')]" />
+                    <separator/>
+                    <filter string="Received offer" name="received_state" domain="[('state', '=', 'received')]" />
+                    <filter string="Accepted offer" name="accepted_state" domain="[('state', '=', 'accepted')]" />
+
+                    <!-- Es posible agrupar entradas o records en grupos predefinidos, según un campo -->
+                    <group expand="0" string="Group By">
+                        <filter string="Status" name="group_by_state" context="{'group_by': 'state'}"/>
+                    </group>
+
+                    <!-- Por último, es posible agregar una barra de búsqueda lateral que use los filtros y grupos-->
+                    <!-- En groupby indicamos un grupo ya hecho, y limit="0" significa sin limite -->
+                    <searchpanel>
+                        <field name="state" icon="fa-filter" groupby="group_by_state" limit="0"/>
+                    </searchpanel>
+
+                </search>
+            </field>
+        </record>
+
+        <!-- kanban  ########################################### -->
+        <!-- Definimos una vista de tarjetas kanban -->
+        <!-- Esta nos muestra record como tarjetas en grupos -->
+        <record id="estate_property_kanban_view" model="ir.ui.view">
+            <field name="name">estate.property.kanban</field>
+            <field name="model">estate.property</field>
+            <field name="arch" type="xml">
+                <kanban default_group_by="state" on_create="quick_create" quick_create_view="real_estate_tutorial.quick_create_estate_property_form_view">
+                    <!-- Aquí hay que añadir algunos atributos y algunos templates -->
+                    <!-- Los templates usan q-web tags, que veremos más adelante -->
+                    <!-- En esta etiqueta kanban también definimos que la vista permita hacer creación -->
+                    <!-- Rápida de records mediante quick create y una pequeña vista form especificada -->
+
+                    <field name="name" />
+                    <field name="state" />
+                    <field name="postcode" />
+                    <field name="buyer_id" />
+
+                    <templates>
+                        <t t-name="kanban-box">
+                            <div class="oe_kanban_global_click">
+                                <div class="oe_kanban_details">
+                                    <strong class="o_kanban_record_title">
+                                        <!-- Esto hace más notorio el campo de nombre -->
+                                        <field name="name"/>
+                                    </strong>
+
+                                    <div class="o_kanban_tags_section">
+                                        <field name="tag_ids" widget="many2many_tags"/>
+                                    </div>
+
+                                    <div class="o_kanban_record_bottom">
+                                        <div class="oe_kanban_bottom_left">
+                                            <field name="offer_count"/> Offer(s)
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </t>
+                    </templates>
+
+                </kanban>
+            </field>
+        </record>
+
+        <!-- Pequeña vista que permite crear records de forma rápida dentro de la vista kanban -->
+        <record id="quick_create_estate_property_form_view" model="ir.ui.view">
+            <field name="name">estate.property.form</field>
+            <field name="model">estate.property</field>
+            <field name="arch" type="xml">
+                <form>
+                    <group>
+                        <field name="name"/>
+                    </group>
+                </form>
+            </field>
+        </record>
+
+
+        <!-- pivot  ################################################################################## -->
+        <!-- La vista pivot nos permite estudiar en forma de tabla todos los records con sus atributos -->
+        <!-- Cada atributo puede ser de uno de 3 tipos: row, column o measure -->
+        <record id="estate_property_pivot_view" model="ir.ui.view">
+            <field name="name">estate.property.pivot</field>
+            <field name="model">estate.property</field>
+            <field name="arch" type="xml">
+                <pivot>
+                    <field name="name" type="row"/>
+                    <field name="selling_price" type="measure"/>
+                    <field name="expected_price" type="measure"/>
+                    <field name="facades" type="measure"/>
+                    <field name="bedrooms" type="measure"/>
+                </pivot>
+            </field>
+        </record>
+
+        <!-- graph ################################################################################### -->
+        <!-- La vista graph nos permite gráficar atributos de diferentes formas -->
+        <record id="estate_property_graph_view" model="ir.ui.view">
+            <field name="name">estate.property.graph</field>
+            <field name="model">estate.property</field>
+            <field name="arch" type="xml">
+                <graph>
+                    <field name="name"/>
+                    <field name="selling_price" type="measure"/>
+                </graph>
+            </field>
+        </record>
+
+        <!-- calendar  ################################################################################## -->
+        <!-- La vista calendar nos permite tener acceso a un calendario -->
+        <record id="estate_property_calendar_view" model="ir.ui.view">
+            <field name="name">estate.property.calendar</field>
+            <field name="model">estate.property</field>
+            <field name="arch" type="xml">
+                <!-- event_open_popup="true" permite agregar un mini formulario de creacion de propiedades accesible, -->
+                <!-- directamente desde el popup de crear evento -->
+                <calendar date_start="date_availability" string="Properties" mode="month" event_open_popup="true">
+                    <field name="name"/>
+                    <field name="date_availability"/>
+                    <field name="postcode"/>
+                </calendar>
+            </field>
+        </record>
+
+<!-- Acciones  ####################################################################################### -->
+        <!-- Lo siguiente crea entradas o records en el modelo ir.actions.act_window (acción de tipo ventana), -->
+        <!-- lo que permite definir y crear acciones que luego se podrán llamar, para por ejemplo cargar vistas específicas -->
+        <!-- Luego hará falta definir el llamado desde algún elemento del menú o desde otra vista -->
+
+        <!-- Esta es la acción principal asociada a la vista de propiedades -->
+
+        <!-- Acción que abre el menú principal de propiedades con todas sus vistas, y que llamamos desde un -->
+        <!-- elemento de menú. Carga todas las vistas especificadas, mostrando primero la kanban -->
+        <record id="action_property" model="ir.actions.act_window">
+            <!-- Asignamos el nombre de la entrada como Property -->
+            <field name="name">Property</field>
+            <!-- Que hace referencia al modelo estate.property -->
+            <field name="res_model">estate.property</field>
+            <!-- y va a mostrar vistas de tipo list y form (Y también kanban/tarjetas y otros) -->
+            <field name="view_mode">kanban,list,form,pivot,graph,calendar</field>
+            <!-- aquí referenciamos la vista custom de kanban que hicimos, que se cargará inicialmente -->
+            <field name="view_id" ref="estate_property_kanban_view"/>
+            <!-- También asignamos la ayuda que aparece al centro -->
+            <field name="help" type="html">
+                <p class="o_view_nocontent_smiling_face">
+                    Create a property to advertise
+                </p>
+            </field>
+        </record>
+    </data>
+</odoo>

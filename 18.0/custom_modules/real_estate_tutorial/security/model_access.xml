@@ -1,0 +1,30 @@
+<!-- Aquí podemos definir que usuarios o grupos pueden acceder y/o modificar determinados modelos del módulo -->
+<!-- Se hace referencia a los accesos definidos en ir.model.access.csv -->
+
+<odoo>
+    <!-- Hacemos referencia a un 'id' existente en el archivo .csv, para sobreescribirlo -->
+    <!-- Por ejemplo el modelo de los tipos de propiedad -->
+    <record id="real_estate_tutorial.access_estate_property_type" model="ir.model.access">
+        <!-- Aquí referenciamos un grupo que queremos tenga acceso. ej: property_manager-->
+        <field name="group_id" ref="real_estate_tutorial.group_property_manager"/>
+    </record>
+
+    <!-- Lo mismo pero para los tags de propiedad -->
+    <record id="real_estate_tutorial.access_estate_property_tags" model="ir.model.access">
+        <!-- Aquí referenciamos un grupo que queremos tenga acceso. ej: property_manager-->
+        <field name="group_id" ref="real_estate_tutorial.group_property_manager"/>
+    </record>
+
+    <!-- Este siguiente registro no existía originalmente en el .csv, estamos creándolo -->
+    <record id="access_estate_property_tags_user" model="ir.model.access">
+        <!-- Establecemos permisos de acceso de sólo lectura para property_user en tags -->
+        <field name="name">Property tag access for user</field>
+        <field name="model_id" ref="real_estate_tutorial.model_estate_property_tags"/>
+        <field name="group_id" ref="real_estate_tutorial.group_property_user"/>
+
+        <field name="perm_read">1</field>
+        <field name="perm_create">0</field>
+        <field name="perm_unlink">0</field>
+        <field name="perm_write">0</field>
+    </record>
+</odoo>

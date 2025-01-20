@@ -1,0 +1,42 @@
+<odoo>
+    <!-- QWeb es el motor de templates usado por odoo -->
+    <!-- las etiquetas <t> ejecutan directivas que llevan a cabo alguna acción o lógica, pero no aparecen en el html final -->
+    <!-- t-call es una directiva que permite llamar o traer un template ya existente para construir sobre él -->
+    <!-- t-if="condición" es una directiva que permite ejecutar un condicional if, también está t-elif y t-else -->
+    <!-- t-foreach="lista" es un ciclo for, y va acompañado de t-as="variable" como la variable usada en el loop -->
+    <!-- t-set="bar" t-value="200" establece una variable bar a 200, y bar ahora es utilizable -->
+    <!-- t-out="bar" imprime el contenido de la variable bar  -->
+
+    <template id="property_list" name="Properties">
+        <t t-call="website.layout">
+            <div class="oe_structure">
+                <div class="container">
+                    <h3>Available Properties</h3>
+                </div>
+                <table class="table-striped table">
+                    <thead>
+                        <tr>
+                            <th>Property Name</th>
+                            <th>Expected Price</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <t t-foreach="property_ids" t-as="property">
+                            <tr>
+                                <th><span t-esc="property.name"/></th>
+                                <th><span t-esc="property.expected_price"/></th>
+                            </tr>
+                        </t>
+
+                        <p t-if="3>5">Hello World</p>
+                        <p t-elif="4>5">Hello Planet</p>
+                        <p t-else="">Hello Mars</p>
+
+                        <t t-set="bar" t-value="200"/>
+                        <t t-out="bar"/>
+                    </tbody>
+                </table>
+            </div>
+        </t>
+    </template>
+</odoo>

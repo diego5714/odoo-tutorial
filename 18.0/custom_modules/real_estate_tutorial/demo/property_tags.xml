@@ -1,0 +1,22 @@
+<odoo>
+    <!-- Los archivos .xml o .css dentro de la carpeta demo son cargados automáticamente a la base de datos -->
+    <!-- al instalar el módulo, siempre y cuando la opción de cargar datos de demo esté activada -->
+
+    <data>
+        <record id = "property_tags_cozy" model = "estate.property.tags">
+            <field name = "name">Cozy</field>
+        </record>
+
+        <record id = "property_tags_renovated" model = "estate.property.tags">
+            <field name = "name">Renovated</field>
+        </record>
+
+        <record id = "property_tags_connected" model = "estate.property.tags">
+            <field name = "name">Connected</field>
+        </record>
+
+        <record id = "property_tags_new" model = "estate.property.tags">
+            <field name = "name">New</field>
+        </record>
+    </data>
+</odoo>
