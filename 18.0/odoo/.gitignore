@@ -1,0 +1,9 @@
+.tx/
+addons/
+debian/
+doc/
+odoo/
+setup/
+odoo-bin
+requirements.txt
+
